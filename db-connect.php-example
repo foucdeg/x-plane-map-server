@@ -1,0 +1,8 @@
+<?php
+
+$user = "the-database-user";
+$pwd = "the-database-pwd";
+$dbname = "the-database-name";
+$table = "the-table-name";
+
+$db = new mysqli("localhost", $user, $pwd, $dbname);
