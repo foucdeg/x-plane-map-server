@@ -8,7 +8,7 @@ This is the server part of the [x-plane-map](https://github.com/foucdeg/x-plane-
 
 The images are stored in a images/ subdirectory not included here. It is about 2.5GB in size and currently holds more than 600,000 PNG tiles of 512*512.
 
-The tiles, when requested, are either served from the images/ directory, or produced if they don't exist yet. They are produced by querying the navaid database, then using the `phpgd` library to make and save a PNG image. It takes about a second to produce a tile.
+The tiles, when requested, are either served from the images/ directory, or produced if they don't exist yet. They are produced by querying the navaid database, then using the `phpgd` library to make and save a PNG image.
 
 ## What data do the tiles use?
 
@@ -18,12 +18,14 @@ The data is imported from X-Plane's nav data files, to a MySQL table called `nav
 ```sql
 CREATE TABLE IF NOT EXISTS `navaids` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `type` ENUM('APT', 'VOR', 'NDB', 'FIX', 'DME') NOT NULL,
+  `type` enum('APT','VOR','NDB','FIX','DME') NOT NULL,
   `name` varchar(10) NOT NULL,
   `lat` float NOT NULL,
   `lon` float NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=278516 ;
+  PRIMARY KEY (`id`),
+  KEY `latindex` (`lat`),
+  KEY `lonindex` (`lon`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=278516 ;
 ```
 
 
