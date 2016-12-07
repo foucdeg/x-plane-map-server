@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `navaids` (
   PRIMARY KEY (`id`),
   KEY `latindex` (`lat`),
   KEY `lonindex` (`lon`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=278516 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 ```
 
 
