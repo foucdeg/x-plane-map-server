@@ -248,117 +248,117 @@ function refreshCP() {
       '<td title="Click to show or hide trace."><input type="checkbox" class="trace-show" checked></td>' +
       '<td title="Click to reset the plane\'s trace."><button class="trace-clear">Clr</button></td>' +
       '<td title="Click to remove the plane."><button class="plane-remove" >Rm</button></td>' +
-      '</tr>');
+      '</tr>'
+		);
+  }
+
+  //resetting js events
+  //radio button
+  $('input[name=plane]').change(function() {
+    $('.planeRow').removeClass("followed");
+    $('input[name=plane]:checked').parents('tr').addClass("followed");
+    ip = $('input[name=plane]:checked').parents('tr').data("ip");
+    planeToFollow = ip;
+    if (ip != null) map.panTo( new google.maps.LatLng( planeList[ip].lat, planeList[ip].lon ) );
+  });
+
+
+  //hide/show trace checkbox
+  $('.trace-show').change(function() {
+    ip = $(this).parents('.planeRow').data("ip");
+    planeList[ip].trace.setVisible($(this).is(':checked'));
+  });
+
+  //trace clear button
+  $('.trace-clear').click(function() {
+    ip = $(this).parents('.planeRow').data("ip");
+    planeList[ip].trace.setMap(null);
+    planeList[ip].trace = new google.maps.Polyline(polyOptions);
+    planeList[ip].trace.setMap(map);
+    planeList[ip].trace.getPath().push(new google.maps.LatLng( planeList[ip].lat, planeList[ip].lon ));
+  });
+
+  //plane remove button
+  $('.plane-remove').click(function() {
+    if(confirm('Are you sure you want to remove this plane ?')) {
+      ip = $(this).parents('.planeRow').data("ip");
+      deletePlane(ip);
+      refreshCP();
     }
+  });
 
-    //resetting js events
-    //radio button
-    $('input[name=plane]').change(function() {
-      $('.planeRow').removeClass("followed");
-      $('input[name=plane]:checked').parents('tr').addClass("followed");
-      ip = $('input[name=plane]:checked').parents('tr').data("ip");
-      planeToFollow = ip;
-      if (ip != null) map.panTo( new google.maps.LatLng( planeList[ip].lat, planeList[ip].lon ) );
-    });
+  //plane name edition
+  $('.plane-name').dblclick(function() {
+    ip = $(this).parents('.planeRow').data("ip");
+    theName = planeList[ip].name;
+    $(this).replaceWith($('<input/>', {value: theName, id: 'planeNameInput', 'data-ip': ip}).val(theName));
 
-
-    //hide/show trace checkbox
-    $('.trace-show').change(function() {
-      ip = $(this).parents('.planeRow').data("ip");
-      planeList[ip].trace.setVisible($(this).is(':checked'));
-    });
-
-    //trace clear button
-    $('.trace-clear').click(function() {
-      ip = $(this).parents('.planeRow').data("ip");
-      planeList[ip].trace.setMap(null);
-      planeList[ip].trace = new google.maps.Polyline(polyOptions);
-      planeList[ip].trace.setMap(map);
-      planeList[ip].trace.getPath().push(new google.maps.LatLng( planeList[ip].lat, planeList[ip].lon ));
-    });
-
-    //plane remove button
-
-    $('.plane-remove').click(function() {
-      if(confirm('Are you sure you want to remove this plane ?')) {
-        ip = $(this).parents('.planeRow').data("ip");
-        deletePlane(ip);
+    $('#planeNameInput').select().keyup(function(e){
+      if(e.keyCode == 13) // return key: confirm name
+      {
+        theNewName = $(this).val();
+        theIP = $(this).data('ip');
+        planeList[theIP].name = theNewName;
+        refreshCP();
+      }
+      else if(e.keyCode == 27 ) { // escape key: cancel change
         refreshCP();
       }
     });
+  });
 
-    //plane name edition
-    $('.plane-name').dblclick(function() {
-      ip = $(this).parents('.planeRow').data("ip");
-      theName = planeList[ip].name;
-      $(this).replaceWith($('<input/>', {value: theName, id: 'planeNameInput', 'data-ip': ip}).val(theName));
+  $('#planesTable tr td:nth-child(2)').click(function() {
+    $(this).parents('tr').find('input[name=plane]').click();
+  });
 
-      $('#planeNameInput').select().keyup(function(e){
-        if(e.keyCode == 13)
-        {
-          theNewName = $(this).val();
-          theIP = $(this).data('ip');
-          planeList[theIP].name = theNewName;
-          refreshCP();
-        }
-        else if(e.keyCode == 27 ) {
-          refreshCP();
-        }
-      });
-    });
+  refreshControlPanel = false;
+}
 
-    $('#planesTable tr td:nth-child(2)').click(function() {
-      $(this).parents('tr').find('input[name=plane]').click();
-    });
+//alert() equivalent
+function showError(text) {
+  $('#errorBox').text(text);
+  $('#errorBox').fadeIn().delay(3500).fadeOut();
+}
 
-    refreshControlPanel = false;
+function nextColor() {
+  if (colors[color_index] != null) {
+    var color = colors[color_index];
+    color_index++;
+    return color;
   }
-
-  //alert() equivalent
-  function showError(text) {
-    $('#errorBox').text(text);
-    $('#errorBox').fadeIn().delay(3500).fadeOut();
+  else {
+    console.log("No more colors");
+    return "#aaaaaa";
   }
+}
 
-  function nextColor() {
-    if (colors[color_index] != null) {
-      var color = colors[color_index];
-      color_index++;
-      return color;
-    }
-    else {
-      console.log("No more colors");
-      return "#aaaaaa";
-    }
-  }
+function hidePanel() {
+  $('#panel').animate({'right' : '-300px'}, 400, 'swing', function() {
+    $('#panel-button').html('Show panel (Tab)').unbind('click').click(showPanel);
+    $('#panel').hide();
+    google.maps.event.trigger(map, 'resize');
+  });
+  $('#map-canvas-wrapper').animate({'margin-right' : '0px'});
+}
 
-  function hidePanel() {
-    $('#panel').animate({'right' : '-300px'}, 400, 'swing', function() {
-      $('#panel-button').html('Show panel (Tab)').unbind('click').click(showPanel);
-      $('#panel').hide();
-      google.maps.event.trigger(map, 'resize');
-    });
-    $('#map-canvas-wrapper').animate({'margin-right' : '0px'});
-  }
+function showPanel() {
+  $('#panel').show();
+  $('#panel').animate({'right' : '0px'}, 400, 'swing', function() {
+    $('#panel-button').html('Hide panel (Tab)').unbind('click').click(hidePanel);
+    google.maps.event.trigger(map, 'resize');
+  });
+  $('#map-canvas-wrapper').animate({'margin-right' : '300px'});
+}
 
-  function showPanel() {
-    $('#panel').show();
-    $('#panel').animate({'right' : '0px'}, 400, 'swing', function() {
-      $('#panel-button').html('Hide panel (Tab)').unbind('click').click(hidePanel);
-      google.maps.event.trigger(map, 'resize');
-    });
-    $('#map-canvas-wrapper').animate({'margin-right' : '300px'});
-  }
+function hideNavaids() {
+  $('#navaids-button').html('Show navaids (N)').unbind('click').click(showNavaids);
+  navMap.setOpacity(0);
+}
 
-  function hideNavaids() {
-    $('#navaids-button').html('Show navaids (N)').unbind('click').click(showNavaids);
-    navMap.setOpacity(0);
-  }
+function showNavaids() {
+  $('#navaids-button').html('Hide navaids (N)').unbind('click').click(hideNavaids);
+  navMap.setOpacity(1);
+}
 
-  function showNavaids() {
-    $('#navaids-button').html('Hide navaids (N)').unbind('click').click(hideNavaids);
-    navMap.setOpacity(1);
-  }
-
-  //ready when you are!
-  google.maps.event.addDomListener(window, 'load', initialize);
+//ready when you are!
+google.maps.event.addDomListener(window, 'load', initialize);
