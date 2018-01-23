@@ -76,7 +76,7 @@ function initialize() {
       southWest = map.getProjection().fromPointToLatLng(new google.maps.Point(west, south));
 
       return [
-        'http://x-plane-map.fouc.net/nav.php?north=',
+        'https://x-plane-map.fouc.net/nav.php?north=',
         northEast.lat().toFixed(4),
         '&south=', southWest.lat().toFixed(4),
         '&east=', northEast.lng().toFixed(4),
